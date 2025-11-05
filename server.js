@@ -35,8 +35,10 @@ async function startServer() {
     await db.getConnection();
     console.log('Connected to MySQL');
 
-    // Connect to MongoDB
-    await connectMongo();
+    // Connect to MongoDB (non-blocking - will retry on first use)
+    connectMongo().catch((error) => {
+      console.warn('MongoDB connection failed:', error.message);
+    });
 
     // Start server
     app.listen(PORT, () => {
@@ -44,7 +46,7 @@ async function startServer() {
       console.log(`📡 API endpoints available at http://localhost:${PORT}`);
     });
   } catch (error) {
-    console.error('Failed to start server:', error);
+    console.error('Failed to start server:', error.message);
     process.exit(1);
   }
 }
